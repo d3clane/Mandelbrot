@@ -18,14 +18,14 @@ HOME = $(shell pwd)
 CXXFLAGS += -I $(HOME)
 
 PROGRAMDIR = build/bin
-TARGET = testAvx
+TARGET = test
 OBJECTDIR = build
 
 DOXYFILE = Others/Doxyfile
 
 HEADERS  = 
 
-FILESCPP = Avx.cpp
+FILESCPP = NoAvx.cpp
 FILESASM = GetTimeStampCounter.s
 
 objects  = $(FILESCPP:%.cpp=$(OBJECTDIR)/%.o)
