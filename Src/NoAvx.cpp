@@ -39,10 +39,14 @@ int main()
     {
         time += CalculateMandelbrotSet(pixels, width, height, imageXShift, 
                                        imageYShift, scale, dx, dy);
-        numberOfRuns++;
 
 #ifndef TIME_MEASURE
         DrawPixels(&window, pixels, width, height);
+#else
+        numberOfRuns++;
+
+        if (numberOfRuns == 1000)
+            window.close();
 #endif
         PollEvents(&window, &imageXShift, &imageYShift, &scale, dx, dy);
     }
