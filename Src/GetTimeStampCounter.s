@@ -7,3 +7,4 @@ GetTimeStampCounter:
     shl rdx, 32
     add rax, rdx
     ret
+    

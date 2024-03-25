@@ -163,7 +163,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
 
                 if (!mask) break;
 
-                // calculating number of iterations per each dxPerPixel shift 
+                // calculating number of iterations per each dx shift 
                 mm256_sub_epi32(numberOfIterations, numberOfIterations, cmpRadius);
 
                 mm256_sub_ps(x, xSquare, ySquare); mm256_add_ps(x, x, x0Avx);

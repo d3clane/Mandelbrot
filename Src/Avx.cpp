@@ -127,7 +127,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
 
                 if (!mask) break;
 
-                // calculating number of iterations per each dxPerPixel shift 
+                // calculating number of iterations per each dx shift 
                 numberOfIterations = _mm256_sub_epi32(numberOfIterations, 
                                                       _mm256_castps_si256(cmpRadius));
 
@@ -198,13 +198,13 @@ void PollEvents(sf::RenderWindow* window,
                         *imageXShift += dxPerPixel * 10.f;
                         break;
                     case sf::Keyboard::Left:
-                        *imageXShift -= dxPerPixel * 10.0f;
+                        *imageXShift -= dxPerPixel * 10.f;
                         break;
                     case sf::Keyboard::Up:
-                        *imageYShift -= dyPerPixel * 10.0f;
+                        *imageYShift -= dyPerPixel * 10.f;
                         break;
                     case sf::Keyboard::Down:
-                        *imageYShift += dyPerPixel * 10.0f;
+                        *imageYShift += dyPerPixel * 10.f;
                         break;
                     case sf::Keyboard::Hyphen: // -
                         *scale -= dxPerPixel * 10.f;
