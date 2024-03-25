@@ -26,8 +26,9 @@ int main()
 {
     static const size_t width  = 800;
     static const size_t height = 600;
-    static const float dxPerPixel      = 1.f / (float)width;
-    static const float dyPerPixel      = dxPerPixel;
+    
+    static const float dxPerPixel = 1.f / (float)width;
+    static const float dyPerPixel = dxPerPixel;
 
     sf::RenderWindow window;
     CreateWindow(width, height, &window, "Mandelbrot");
