@@ -21,6 +21,8 @@ git clone https://github.com/d3clane/Mandelbrot.git
 cd Src && make
 ```
 
+Programs are in build/bin/
+
 ## Первая программа 
 
 [Код](/Src/NoAvx.cpp) 1000 раз пересчитывает Мандельброта, а затем усредняет время. Итоговое время:
