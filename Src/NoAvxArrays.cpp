@@ -21,9 +21,9 @@ typedef float m256 [8];
 typedef int   m256i[8];
 
 static inline void mm256_set1_ps(m256 dst, float val);
-static inline void mm256_set_ps (m256 dst, float val1, float val2, float val3, 
-                                               float val4, float val5, float val6, 
-                                               float val7, float val8);
+static inline void mm256_set_ps (m256 dst, float val7, float val6, float val5, 
+                                           float val4, float val3, float val2, 
+                                           float val1, float val0);
                                                
 static inline void mm256_add_ps   (m256 dst, m256 src1, m256 src2);
 static inline void mm256_mul_ps   (m256 dst, m256 src1, m256 src2);
@@ -101,18 +101,19 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
     const float dx = dxPerPixel / scale;
     const float dy = dyPerPixel / scale;
 
-    static m256 maxRadiusSquare = {};
+    static m256   maxRadiusSquare = {};
     mm256_set1_ps(maxRadiusSquare, 100.f);
 
-    static m256 _76543210 = {};
+    static m256  _76543210 = {};
     mm256_set_ps(_76543210, 7.f, 6.f, 5.f, 4.f, 3.f, 2.f, 1.f, 0.f);
-    static m256 dxAvx = {};
+
+    static m256   dxAvx = {};
     mm256_set1_ps(dxAvx, dx);
 
-    static m256 pointsDeltas = {};
+    static m256  pointsDeltas = {};
     mm256_mul_ps(pointsDeltas, dxAvx, _76543210);
 
-    static m256 colorsCalculatingDivider = {};
+    static m256   colorsCalculatingDivider = {};
     mm256_set1_ps(colorsCalculatingDivider, (float)maxNumberOfIterations / 255.f);
 
           float y0Begin = -(float)height / 2 * dy + centerY + imageYShift;
@@ -121,6 +122,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
 
     m256 y0Avx     = {};
     mm256_set1_ps(y0Avx, y0Begin);
+
     m256 dyAvx = {};
     mm256_set1_ps(dyAvx, dy);
 
@@ -138,7 +140,6 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
             m256 y = {};
             mm256_cpy_ps(x, x0Avx);
             mm256_cpy_ps(y, y0Avx);
-            
             
             m256i numberOfIterations = {};
             mm256_setzero_si256(numberOfIterations);
@@ -265,20 +266,18 @@ static inline void mm256_set1_ps(m256 dst, float val)
 {
     for (size_t i = 0; i < 8; ++i) dst[i] = val;
 }
-
-static inline void mm256_set_ps (m256 dst, float val1, float val2, float val3, 
-                                               float val4, float val5, float val6, 
-                                               float val7, float val8)
+static inline void mm256_set_ps (m256 dst, float val7, float val6, float val5, 
+                                           float val4, float val3, float val2, 
+                                           float val1, float val0)
 {
-    dst[0] = val8;
-    dst[1] = val7;
-    dst[2] = val6;
-    dst[3] = val5;
+    dst[0] = val0;
+    dst[1] = val1;
+    dst[2] = val2;
+    dst[3] = val3;
     dst[4] = val4;
-    dst[5] = val3;
-    dst[6] = val2;
-    dst[7] = val1;
-    //TODO: CHANGE in reverse order val1, val2.... in func arguments
+    dst[5] = val5;
+    dst[6] = val6;
+    dst[7] = val7;
 }
                                                
 static inline void mm256_add_ps   (m256 dst, m256 src1, m256 src2)
