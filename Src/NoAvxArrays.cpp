@@ -9,13 +9,13 @@ void     CreateWindow           (const size_t width, const size_t height,
                                  sf::RenderWindow* outWindow, const char* windowName);
 uint64_t CalculateMandelbrotSet (sf::Uint8* pixels, const size_t width, const size_t height,
                                  const float imageXShift, const float imageYShift, 
-                                 const float scale, const float dx, const float dy);
+                                 const float scale, const float dxPerPixel, const float dyPerPixel);
 void     DrawPixels             (sf::RenderWindow* window, sf::Uint8* pixels, 
                                  const size_t width, const size_t height);
 void     ClearWindow            (sf::RenderWindow* window);
 void     PollEvents             (sf::RenderWindow* window, 
                                  float* imageXShift, float* imageYShift, float* scale,
-                                 const float dx, const float dy);
+                                 const float dxPerPixel, const float dyPerPixel);
 
 typedef float m256 [8];
 typedef int   m256i[8];
@@ -42,8 +42,8 @@ int main()
 {
     static const size_t width  = 800;
     static const size_t height = 600;
-    static const float dx      = 1.f / (float)width;
-    static const float dy      = dx;
+    static const float dxPerPixel      = 1.f / (float)width;
+    static const float dyPerPixel      = dxPerPixel;
 
     sf::RenderWindow window;
     CreateWindow(width, height, &window, "Mandelbrot");
@@ -59,7 +59,7 @@ int main()
     while (window.isOpen())
     {
         time += CalculateMandelbrotSet(pixels, width, height, imageXShift, 
-                                       imageYShift, scale, dx, dy);
+                                       imageYShift, scale, dxPerPixel, dyPerPixel);
 
 #ifndef TIME_MEASURE
         DrawPixels(&window, pixels, width, height);
@@ -69,7 +69,7 @@ int main()
         if (numberOfRuns == 1000)
             window.close();
 #endif
-        PollEvents(&window, &imageXShift, &imageYShift, &scale, dx, dy);
+        PollEvents(&window, &imageXShift, &imageYShift, &scale, dxPerPixel, dyPerPixel);
     }
 
 #ifdef TIME_MEASURE
@@ -88,47 +88,47 @@ void CreateWindow(const size_t width, const size_t height,
 
 uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const size_t height,
                                 const float imageXShift, const float imageYShift, 
-                                const float scale, const float dx, const float dy)
+                                const float scale, const float dxPerPixel, const float dyPerPixel)
 {   
-    static const float  centerX               = -1.35f;
-    static const float  centerY               = 0.f;
-    
-
-    static m256 maxRadiusSquare = {};
-    mm256_set1_ps(maxRadiusSquare, 100.f);
-
-
-    static m256 _76543210 = {};
-    mm256_set_ps(_76543210, 7.f, 6.f, 5.f, 4.f, 3.f, 2.f, 1.f, 0.f);
-    static m256 deltaXAvx = {};
-    mm256_set1_ps(deltaXAvx, dx / scale);
-
-    static m256 pointsDeltas = {};
-    mm256_mul_ps(pointsDeltas, deltaXAvx, _76543210);
+    static const float  centerX = -1.35f;
+    static const float  centerY = 0.f;
     
     static const size_t maxNumberOfIterations = 256;
-
-    static m256 colorsCalculatingDivider = {};
-    mm256_set1_ps(colorsCalculatingDivider, (float)maxNumberOfIterations / 255.f);
 
 #ifdef TIME_MEASURE
     uint64_t startTime = GetTimeStampCounter();
 #endif
+    const float dx = dxPerPixel / scale;
+    const float dy = dyPerPixel / scale;
 
-          float y0Begin = -(float)height / (2 * scale) * dy + centerY + imageYShift;
-    const float x0Begin = -(float)width  / (2 * scale) * dx + centerX + imageXShift;
+    static m256 maxRadiusSquare = {};
+    mm256_set1_ps(maxRadiusSquare, 100.f);
+
+    static m256 _76543210 = {};
+    mm256_set_ps(_76543210, 7.f, 6.f, 5.f, 4.f, 3.f, 2.f, 1.f, 0.f);
+    static m256 deltaXAvx = {};
+    mm256_set1_ps(deltaXAvx, dx);
+
+    static m256 pointsDeltas = {};
+    mm256_mul_ps(pointsDeltas, deltaXAvx, _76543210);
+
+    static m256 colorsCalculatingDivider = {};
+    mm256_set1_ps(colorsCalculatingDivider, (float)maxNumberOfIterations / 255.f);
+
+          float y0Begin = -(float)height / 2 * dy + centerY + imageYShift;
+    const float x0Begin = -(float)width  / 2 * dx + centerX + imageXShift;
     
 
     m256 y0Avx     = {};
     mm256_set1_ps(y0Avx, y0Begin);
     m256 deltaYAvx = {};
-    mm256_set1_ps(deltaYAvx, dy / scale);
+    mm256_set1_ps(deltaYAvx, dy);
 
     for (size_t pixelY = 0; pixelY < height; ++pixelY, mm256_add_ps(y0Avx, y0Avx, deltaYAvx))
     {
         float x0 = x0Begin;
 
-        for (size_t pixelX = 0; pixelX < width; pixelX += 8, x0 += 8 * dx / scale)
+        for (size_t pixelX = 0; pixelX < width; pixelX += 8, x0 += 8 * dx)
         {
             m256 x0Avx = {};
             mm256_set1_ps(x0Avx, x0);
@@ -162,7 +162,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
 
                 if (!mask) break;
 
-                // calculating number of iterations per each dx shift 
+                // calculating number of iterations per each dxPerPixel shift 
                 mm256_sub_epi32(numberOfIterations, numberOfIterations, cmpRadius);
 
                 mm256_sub_ps(x, xSquare, ySquare); mm256_add_ps(x, x, x0Avx);
@@ -213,7 +213,7 @@ void DrawPixels (sf::RenderWindow* window, sf::Uint8* pixels,
 
 void PollEvents(sf::RenderWindow* window, 
                 float* imageXShift, float* imageYShift, float* scale,
-                const float dx, const float dy)
+                const float dxPerPixel, const float dyPerPixel)
 {
     sf::Event event;
     while (window->pollEvent(event))
@@ -229,22 +229,22 @@ void PollEvents(sf::RenderWindow* window,
                 switch(event.key.code)
                 {
                     case sf::Keyboard::Right:
-                        *imageXShift += dx * 10.f;
+                        *imageXShift += dxPerPixel * 10.f;
                         break;
                     case sf::Keyboard::Left:
-                        *imageXShift -= dx * 10.0f;
+                        *imageXShift -= dxPerPixel * 10.0f;
                         break;
                     case sf::Keyboard::Up:
-                        *imageYShift -= dy * 10.0f;
+                        *imageYShift -= dyPerPixel * 10.0f;
                         break;
                     case sf::Keyboard::Down:
-                        *imageYShift += dy * 10.0f;
+                        *imageYShift += dyPerPixel * 10.0f;
                         break;
                     case sf::Keyboard::Hyphen: // -
-                        *scale -= dx * 10.f;
+                        *scale -= dxPerPixel * 10.f;
                         break;
                     case sf::Keyboard::Equal: // equal on the same pos as +
-                        *scale += dx * 10.f;
+                        *scale += dxPerPixel * 10.f;
                         break;
 
                     default:
