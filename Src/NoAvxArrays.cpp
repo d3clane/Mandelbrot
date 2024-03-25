@@ -106,11 +106,11 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
 
     static m256 _76543210 = {};
     mm256_set_ps(_76543210, 7.f, 6.f, 5.f, 4.f, 3.f, 2.f, 1.f, 0.f);
-    static m256 deltaXAvx = {};
-    mm256_set1_ps(deltaXAvx, dx);
+    static m256 dxAvx = {};
+    mm256_set1_ps(dxAvx, dx);
 
     static m256 pointsDeltas = {};
-    mm256_mul_ps(pointsDeltas, deltaXAvx, _76543210);
+    mm256_mul_ps(pointsDeltas, dxAvx, _76543210);
 
     static m256 colorsCalculatingDivider = {};
     mm256_set1_ps(colorsCalculatingDivider, (float)maxNumberOfIterations / 255.f);
@@ -121,10 +121,10 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
 
     m256 y0Avx     = {};
     mm256_set1_ps(y0Avx, y0Begin);
-    m256 deltaYAvx = {};
-    mm256_set1_ps(deltaYAvx, dy);
+    m256 dyAvx = {};
+    mm256_set1_ps(dyAvx, dy);
 
-    for (size_t pixelY = 0; pixelY < height; ++pixelY, mm256_add_ps(y0Avx, y0Avx, deltaYAvx))
+    for (size_t pixelY = 0; pixelY < height; ++pixelY, mm256_add_ps(y0Avx, y0Avx, dyAvx))
     {
         float x0 = x0Begin;
 
