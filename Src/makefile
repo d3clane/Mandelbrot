@@ -12,31 +12,49 @@ CXXFLAGS = -D _DEBUG -ggdb3 -std=c++17 -O3 -Wall -Wextra -Weffc++ -Waggressive-l
 		   -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs 			  \
 		   -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow 	  \
 		   -flto-odr-type-merging -fno-omit-frame-pointer -Wlarger-than=8192 -Wstack-usage=8192 -pie  \
-		   -fPIE -Werror=vla -lsfml-graphics -lsfml-window -lsfml-system -D TIME_MEASUR -mavx2
+		   -fPIE -Werror=vla -lsfml-graphics -lsfml-window -lsfml-system -D TIME_MEASURE -mavx2
 
 HOME = $(shell pwd)
 CXXFLAGS += -I $(HOME)
 
 PROGRAMDIR = build/bin
-TARGET = testAvx
+TARGET1 = testNoAvx
+TARGET2 = testAvx
+TARGET3 = testNoAvxArrays
 OBJECTDIR = build
 
 DOXYFILE = Others/Doxyfile
 
 HEADERS  = 
 
-FILESCPP = Avx.cpp
-FILESASM = GetTimeStampCounter.s
+FILES1CPP = NoAvx.cpp
+FILES1ASM = GetTimeStampCounter.s
+FILES2CPP = Avx.cpp
+FILES2ASM = GetTimeStampCounter.s
+FILES3CPP = NoAvxArrays.cpp
+FILES3ASM = GetTimeStampCounter.s
 
-objects  = $(FILESCPP:%.cpp=$(OBJECTDIR)/%.o)
-objects += $(FILESASM:%.s=$(OBJECTDIR)/%.o)
+objects1  = $(FILES1CPP:%.cpp=$(OBJECTDIR)/%.o)
+objects1 += $(FILES1ASM:%.s=$(OBJECTDIR)/%.o)
+
+objects2  = $(FILES2CPP:%.cpp=$(OBJECTDIR)/%.o)
+objects2 += $(FILES2ASM:%.s=$(OBJECTDIR)/%.o)
+
+objects3  = $(FILES3CPP:%.cpp=$(OBJECTDIR)/%.o)
+objects3 += $(FILES3ASM:%.s=$(OBJECTDIR)/%.o)
 
 .PHONY: all docs clean buildDirs
 
-all: $(PROGRAMDIR)/$(TARGET)
+all: $(PROGRAMDIR)/$(TARGET1) $(PROGRAMDIR)/$(TARGET2) $(PROGRAMDIR)/$(TARGET3)
 
-$(PROGRAMDIR)/$(TARGET): $(objects) 
-	$(CXX) $^ -o $(PROGRAMDIR)/$(TARGET) $(CXXFLAGS)
+$(PROGRAMDIR)/$(TARGET1): $(objects1)
+	$(CXX) $^ -o $(PROGRAMDIR)/$(TARGET1) $(CXXFLAGS)
+
+$(PROGRAMDIR)/$(TARGET2): $(objects2)
+	$(CXX) $^ -o $(PROGRAMDIR)/$(TARGET2) $(CXXFLAGS)
+
+$(PROGRAMDIR)/$(TARGET3): $(objects3)
+	$(CXX) $^ -o $(PROGRAMDIR)/$(TARGET3) $(CXXFLAGS)
 
 $(OBJECTDIR)/%.o : %.cpp $(HEADERS)
 	$(CXX) -c $< -o $@ $(CXXFLAGS) 

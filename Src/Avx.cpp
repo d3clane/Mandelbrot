@@ -101,19 +101,19 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
     
     __m256 y0Avx = _mm256_set1_ps(y0Begin);
     __m256 dyAvx = _mm256_set1_ps(dy);
-
     for (size_t pixelY = 0; pixelY < height; ++pixelY, y0Avx = _mm256_add_ps(y0Avx, dyAvx))
     {
         float x0 = x0Begin;
 
         for (size_t pixelX = 0; pixelX < width; pixelX += 8, x0 += 8 * dx)
         {
+            __m256i numberOfIterations = _mm256_setzero_si256();
+        #ifndef BASELINE
             __m256 x0Avx = _mm256_add_ps(_mm256_set1_ps(x0), pointsDeltas);
 
             __m256 x = x0Avx;
             __m256 y = y0Avx;
             
-            __m256i numberOfIterations = _mm256_setzero_si256();
             for (size_t iterationNumber = 0; iterationNumber < maxNumberOfIterations;
                  ++iterationNumber)
             {
@@ -135,7 +135,8 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
                 x = _mm256_add_ps(_mm256_sub_ps(xSquare, ySquare), x0Avx);
                 y = _mm256_add_ps(_mm256_add_ps(xMulY  , xMulY),   y0Avx);
             }
-
+        
+        #endif
             __m256 colors = _mm256_div_ps(_mm256_cvtepi32_ps(numberOfIterations), 
                                           colorsCalculatingDivider);
 
@@ -227,3 +228,11 @@ void ClearWindow(sf::RenderWindow* window)
 {
     window->clear();
 }
+
+
+// 1193243
+// 52355494
+
+// 51162251
+
+// 2.3%
