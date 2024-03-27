@@ -86,7 +86,8 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
                                 _mm256_set1_ps((float)maxNumberOfIterations / 255.f);
 
 #ifdef TIME_MEASURE
-    uint64_t startTime = GetTimeStampCounter();
+    uint64_t startTime            = GetTimeStampCounter();
+    uint64_t allIterationsCounter = 0;
 #endif
 
     const float dx = dxPerPixel / scale;
@@ -108,13 +109,14 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
         for (size_t pixelX = 0; pixelX < width; pixelX += 8, x0 += 8 * dx)
         {
             __m256i numberOfIterations = _mm256_setzero_si256();
-        #ifndef BASELINE
+
             __m256 x0Avx = _mm256_add_ps(_mm256_set1_ps(x0), pointsDeltas);
 
             __m256 x = x0Avx;
             __m256 y = y0Avx;
             
-            for (size_t iterationNumber = 0; iterationNumber < maxNumberOfIterations;
+            size_t iterationNumber = 0;
+            for (iterationNumber = 0; iterationNumber < maxNumberOfIterations;
                  ++iterationNumber)
             {
                 __m256 xSquare = _mm256_mul_ps(x, x);
@@ -136,7 +138,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
                 y = _mm256_add_ps(_mm256_add_ps(xMulY  , xMulY),   y0Avx);
             }
         
-        #endif
+        #ifdef TIME_MEASURE_PIXELS_SETTING
             __m256 colors = _mm256_div_ps(_mm256_cvtepi32_ps(numberOfIterations), 
                                           colorsCalculatingDivider);
 
@@ -154,11 +156,17 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
                 pixels[pixelPos + 2] = color > 122 ? color : 0;
                 pixels[pixelPos + 3] = 255;
             }
+        #endif
+        #ifdef TIME_MEASURE_EXTRA_VAR
+            allIterationsCounter += iterationNumber;
+        #endif
         }
     }
 
 #ifdef TIME_MEASURE
-    return GetTimeStampCounter() - startTime;
+    uint64_t timeSpent = GetTimeStampCounter() - startTime;
+    printf("allIterationsCounter - %llu\n", allIterationsCounter);
+    return timeSpent;
 #else
     return 0;
 #endif

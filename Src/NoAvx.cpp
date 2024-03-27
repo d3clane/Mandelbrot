@@ -76,7 +76,8 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
     static const float  centerY               = 0.f;
 
 #ifdef TIME_MEASURE
-    uint64_t startTime = GetTimeStampCounter();
+    uint64_t startTime            = GetTimeStampCounter();
+    uint64_t allIterationsCounter = 0;
 #endif
 
     const float dx = dxPerPixel / scale;
@@ -110,6 +111,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
                 y = xMulY   + xMulY   + y0;
             }
 
+        #ifdef TIME_MEASURE_PIXELS_SETTING
             float color = (float)iterationNumber / (float)maxNumberOfIterations * 255.f;
 
             uint8_t col = iterationNumber == maxNumberOfIterations ? 0 : (uint8_t)color;
@@ -120,11 +122,17 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
             pixels[pixelPos + 1] = col > 122 ? 1   : col;
             pixels[pixelPos + 2] = col > 122 ? col : 0;
             pixels[pixelPos + 3] = 255;
+        #endif
+        #ifdef TIME_MEASURE_EXTRA_VAR
+            allIterationsCounter += iterationNumber;
+        #endif
         }
     }
 
 #ifdef TIME_MEASURE
-    return GetTimeStampCounter() - startTime;
+    uint64_t timeSpent = GetTimeStampCounter() - startTime;
+    printf("allIterationsCounter - %llu\n", allIterationsCounter);
+    return timeSpent;
 #else
     return 0;
 #endif
