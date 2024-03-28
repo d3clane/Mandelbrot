@@ -30,7 +30,7 @@ HEADERS  =
 
 FILES1CPP = NoAvx.cpp
 FILES1ASM = GetTimeStampCounter.s
-FILES2CPP = NoAvx.cpp
+FILES2CPP = Avx.cpp
 FILES2ASM = GetTimeStampCounter.s
 FILES3CPP = NoAvxArrays.cpp
 FILES3ASM = GetTimeStampCounter.s
