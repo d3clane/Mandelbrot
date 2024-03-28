@@ -138,7 +138,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
                 y = _mm256_add_ps(_mm256_add_ps(xMulY  , xMulY),   y0Avx);
             }
         
-        #ifdef TIME_MEASURE_PIXELS_SETTING
+        #if defined(TIME_MEASURE_PIXELS_SETTING) || !defined(TIME_MEASURE)
             __m256 colors = _mm256_div_ps(_mm256_cvtepi32_ps(numberOfIterations), 
                                           colorsCalculatingDivider);
 
@@ -157,7 +157,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
                 pixels[pixelPos + 3] = 255;
             }
         #endif
-        #ifdef TIME_MEASURE_EXTRA_VAR
+        #if TIME_MEASURE_EXTRA_VAR
             allIterationsCounter += iterationNumber;
         #endif
         }

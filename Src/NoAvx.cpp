@@ -111,7 +111,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
                 y = xMulY   + xMulY   + y0;
             }
 
-        #ifdef TIME_MEASURE_PIXELS_SETTING
+        #if defined(TIME_MEASURE_PIXELS_SETTING) || !defined(TIME_MEASURE)
             float color = (float)iterationNumber / (float)maxNumberOfIterations * 255.f;
 
             uint8_t col = iterationNumber == maxNumberOfIterations ? 0 : (uint8_t)color;

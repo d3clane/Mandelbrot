@@ -173,7 +173,7 @@ uint64_t CalculateMandelbrotSet(sf::Uint8* pixels, const size_t width, const siz
                 mm256_add_ps(y, xMulY,   xMulY);   mm256_add_ps(y, y, y0Avx);
             }
 
-        #ifdef TIME_MEASURE_PIXELS_SETTING
+        #if defined(TIME_MEASURE_PIXELS_SETTING) || !defined(TIME_MEASURE)
             m256 colors = {};
             mm256_div_ps(colors, numberOfIterations, colorsCalculatingDivider);
 
