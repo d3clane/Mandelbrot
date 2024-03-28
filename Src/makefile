@@ -13,7 +13,7 @@ CXXFLAGS = -D _DEBUG -ggdb3 -std=c++17 -O3 -Wall -Wextra -Weffc++ -Waggressive-l
 		   -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow 	  \
 		   -flto-odr-type-merging -fno-omit-frame-pointer -Wlarger-than=8192 -Wstack-usage=8192 -pie  \
 		   -fPIE -Werror=vla -lsfml-graphics -lsfml-window -lsfml-system -D TIME_MEASURE 			  \
-		   -D TIME_MEASURE_PIXELS_SETTING -D TIME_MEASURE_EXTRA_VA -mavx2
+		   -D TIME_MEASURE_PIXELS_SETTIN -D TIME_MEASURE_EXTRA_VAR -mavx2
 
 HOME = $(shell pwd)
 CXXFLAGS += -I $(HOME)
@@ -30,7 +30,7 @@ HEADERS  =
 
 FILES1CPP = NoAvx.cpp
 FILES1ASM = GetTimeStampCounter.s
-FILES2CPP = Avx.cpp
+FILES2CPP = NoAvx.cpp
 FILES2ASM = GetTimeStampCounter.s
 FILES3CPP = NoAvxArrays.cpp
 FILES3ASM = GetTimeStampCounter.s
